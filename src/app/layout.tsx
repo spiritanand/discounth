@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { CartProvider } from "~/lib/context/cart-context";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
 	title: "DiscountH",
@@ -20,9 +20,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="en" className={`dark ${geist.variable}`}>
-			<CartProvider>
-				<body>{children}</body>
-			</CartProvider>
+			<body>
+				<Providers>{children}</Providers>
+			</body>
 		</html>
 	);
 }
