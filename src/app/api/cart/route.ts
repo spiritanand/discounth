@@ -5,8 +5,16 @@ import { AddToCartSchema } from "~/lib/types/cart";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const input = AddToCartSchema.parse(body);
+    const result = AddToCartSchema.safeParse(body);
 
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 }
+      );
+    }
+
+    const input = result.data;
     const product = products.find((p) => p.id === input.productId);
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -16,8 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Not enough stock" }, { status: 400 });
     }
 
-    // In a real app, you'd store this in a session or database
-    // For this example, we'll just return the cart item
+    // In a real app, we'd store this in a session or database
     const cartItem = {
       id: product.id,
       name: product.name,
@@ -28,9 +35,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(cartItem);
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

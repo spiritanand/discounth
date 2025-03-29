@@ -10,7 +10,16 @@ import { getValidDiscountCode, markDiscountCodeAsUsed, saveOrder } from "~/lib/s
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const input = CheckoutSchema.parse(body);
+    const result = CheckoutSchema.safeParse(body);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error.issues[0]?.message ?? "Invalid input" },
+        { status: 400 }
+      );
+    }
+
+    const input = result.data;
 
     // Handle discount code validation and application
     let discountAmount = 0;
@@ -50,9 +59,6 @@ export async function POST(request: Request) {
       newDiscountCode,
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

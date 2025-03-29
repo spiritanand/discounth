@@ -1,15 +1,24 @@
 import { NextResponse } from "next/server";
 import { getValidDiscountCode } from "~/lib/storage";
+import { z } from "zod";
+
+const ValidateDiscountCodeSchema = z.object({
+  code: z.string().min(1, "Discount code is required"),
+});
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { code } = body;
+    const result = ValidateDiscountCodeSchema.safeParse(body);
 
-    if (!code) {
-      return NextResponse.json({ error: "Discount code is required" }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error.issues[0]?.message || "Invalid input" },
+        { status: 400 }
+      );
     }
 
+    const { code } = result.data;
     const discountCode = await getValidDiscountCode(code);
 
     if (!discountCode) {
