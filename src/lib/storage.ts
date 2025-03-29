@@ -1,14 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { Order, DiscountCode } from "./types/cart";
+import { DISCOUNT_PERCENTAGE } from "./constants";
+import { NTH_ORDER } from "./constants";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
 const DISCOUNT_CODES_FILE = path.join(DATA_DIR, "discount-codes.json");
-
-// Constants
-const NTH_ORDER = 1; // Generate discount code for every 5th order
-const DISCOUNT_PERCENTAGE = 10;
 
 // Ensure data directory exists
 async function ensureDataDir() {
