@@ -1,9 +1,18 @@
+/**
+ * Admin stats API endpoint that provides comprehensive order and discount analytics.
+ * Requires authentication and aggregates data from orders and discount codes.
+ */
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isAuthenticated, unauthorized } from "~/lib/auth";
 import { getOrders, getDiscountCodes } from "~/lib/storage";
 import { formatNumber } from "~/lib/utils";
 
+/**
+ * Stats response type containing aggregated order metrics,
+ * discount code usage statistics, and top-performing products.
+ */
 interface OrderStats {
   totalOrders: number;
   totalItems: number;
@@ -36,19 +45,21 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Fetch all required data concurrently
     const [orders, discountCodes] = await Promise.all([getOrders(), getDiscountCodes()]);
 
-    // Calculate total items and create product stats map
+    // Initialize aggregation variables
     const productStats = new Map<number, { name: string; quantity: number; totalAmount: number }>();
     let totalItems = 0;
     let totalAmount = 0;
     let totalDiscountAmount = 0;
 
-    // Process orders
+    // Aggregate order statistics and build product performance data
     for (const order of orders) {
       totalAmount += formatNumber(order.total);
       totalDiscountAmount += formatNumber(order.discountAmount || 0);
 
+      // Aggregate product-level statistics
       for (const item of order.items) {
         totalItems += item.quantity;
 
@@ -68,7 +79,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Convert product stats to sorted array
+    // Sort products by revenue and get top 5
     const topProducts = Array.from(productStats.entries())
       .map(([id, stats]) => ({
         id,
@@ -76,8 +87,9 @@ export async function GET(request: NextRequest) {
         totalAmount: formatNumber(stats.totalAmount),
       }))
       .sort((a, b) => b.totalAmount - a.totalAmount)
-      .slice(0, 5); // Top 5 products
+      .slice(0, 5);
 
+    // Compile final statistics
     const stats: OrderStats = {
       totalOrders: orders.length,
       totalItems,

@@ -1,29 +1,84 @@
-# Create T3 App
+# Discounth - E-commerce Store
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A modern e-commerce store built with Next.js that features a dynamic discount system where every nth order receives a 10% discount coupon.
 
-## What's next? How do I make an app with this?
+## Tech Stack
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **Framework**: [Next.js 15](https://nextjs.org) with App Router
+- **Database**: In-memory store using the filesystem
+- **Styling**: [Tailwind CSS](https://tailwindcss.com) with [shadcn/ui](https://ui.shadcn.com)
+- **API Layer**: Next.js API Routes with Zod for validation
+- **Type Safety**: TypeScript
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Features
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+### Pages
 
-## Learn More
+- `/` - Home page displaying available products
+- `/cart` - Shopping cart page with discount code application
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+### API Routes
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+#### Customer APIs
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- `POST /api/cart`
+  - Add items to cart
 
-## How do I deploy this?
+- `POST /api/checkout`
+  - Process order checkout
+  - Validates discount code if provided
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- `POST /api/discount-codes/validate`
+  - Validate discount code
+
+#### Admin APIs
+
+- `GET /api/admin/stats`
+  - Returns:
+    - Total items purchased
+    - Total purchase amount
+    - List of discount codes
+    - Total discount amount
+
+- `POST /api/admin/discount-codes`
+  - Generates new discount codes for admins
+
+## Key Assumptions
+
+1. In-memory Data Store
+   - All data is stored in memory
+   - Data persists only during server runtime
+
+2. Discount System
+   - Every nth order generates a new discount code
+   - Discount codes are single-use only
+   - 10% discount applies to entire cart value
+   - New discount code becomes available after previous one is used
+
+3. Cart System
+   - Cart items persist in memory
+   - No user authentication required for basic operations
+   - Cart expires after checkout
+
+## Development
+
+1. Clone the repository
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Start development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+## Testing
+
+Run the test suite:
+
+```bash
+pnpm test
+```
