@@ -21,13 +21,15 @@ type CartState = {
 type CartAction =
 	| { type: "ADD_TO_CART"; payload: Product }
 	| { type: "REMOVE_FROM_CART"; payload: number }
-	| { type: "DECREMENT"; payload: number };
+	| { type: "DECREMENT"; payload: number }
+	| { type: "INCREMENT"; payload: number };
 
 type CartContextType = {
 	state: CartState;
 	addToCart: (product: Product) => void;
 	removeFromCart: (productId: number) => void;
 	decrementQuantity: (productId: number) => void;
+	incrementQuantity: (productId: number) => void;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -72,6 +74,20 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 				),
 			};
 		}
+		case "INCREMENT": {
+			const existingItem = state.items.find(
+				(item) => item.id === action.payload,
+			);
+			if (!existingItem || existingItem.quantity >= existingItem.stock)
+				return state;
+			return {
+				items: state.items.map((item) =>
+					item.id === action.payload
+						? { ...item, quantity: item.quantity + 1 }
+						: item,
+				),
+			};
+		}
 		default:
 			return state;
 	}
@@ -92,9 +108,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		dispatch({ type: "DECREMENT", payload: productId });
 	};
 
+	const incrementQuantity = (productId: number) => {
+		dispatch({ type: "INCREMENT", payload: productId });
+	};
+
 	return (
 		<CartContext.Provider
-			value={{ state, addToCart, removeFromCart, decrementQuantity }}
+			value={{
+				state,
+				addToCart,
+				removeFromCart,
+				decrementQuantity,
+				incrementQuantity,
+			}}
 		>
 			{children}
 		</CartContext.Provider>

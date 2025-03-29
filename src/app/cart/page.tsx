@@ -29,7 +29,8 @@ export default function CartPage() {
 	const [appliedDiscount, setAppliedDiscount] = useState<DiscountInfo | null>(
 		null,
 	);
-	const { state, decrementQuantity, removeFromCart } = useCart();
+	const { state, decrementQuantity, removeFromCart, incrementQuantity } =
+		useCart();
 	const { checkout } = useCartMutations();
 	const { data: availableDiscounts = [] } = useDiscountCodes();
 
@@ -131,6 +132,13 @@ export default function CartPage() {
 											-
 										</Button>
 										<p className="w-12 text-center">{item.quantity}</p>
+										<Button
+											variant="outline"
+											size="icon"
+											onClick={() => incrementQuantity(item.id)}
+										>
+											+
+										</Button>
 										<Button
 											variant="destructive"
 											size="icon"
